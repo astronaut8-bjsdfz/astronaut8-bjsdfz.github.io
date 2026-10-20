@@ -1,0 +1,462 @@
+/* ============================================================
+   科创8班 · 门户   v4
+   版式：C 的舱段拼装（4 列 bento，大小不一）+ A 的轨道图占右上角。
+   名字：科创8班。8 在标题里单独发青，「8」也正好是轨道中心那个点。
+   ⚠️ 克制优先——主色只有青，蓝只做渐变尾巴，琥珀只给「NEW / 施工中」。
+   ⚠️ 资源走 ./ ；子站走 ../ —— 部署在根 / 时浏览器把 /../x 归一到 /x，
+      本地放 portal/index.html 预览时 ../ 又真的是上一级，一套文件两处都对。
+   ============================================================ */
+
+:root {
+  --bg:    #080b10;
+  --ink:   #edf4f9;
+  --ink2:  #9db0be;
+  --muted: #5c7081;
+  --line:  rgba(125, 165, 190, .15);
+  --cy:    #3fe0c5;
+  --bl:    #6ea8ff;
+  --am:    #f0b45f;
+  --mono:  ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans:  -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+           "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  background-image:
+    radial-gradient(820px 520px at 12% 0%, rgba(63, 224, 197, .09), transparent 60%),
+    radial-gradient(720px 520px at 96% 100%, rgba(110, 168, 255, .09), transparent 62%),
+    linear-gradient(rgba(120, 180, 200, .035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 180, 200, .035) 1px, transparent 1px);
+  background-size: auto, auto, 44px 44px, 44px 44px;
+  color: var(--ink2);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 26px 30px 34px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 状态条 ---------- */
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .24em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.bar-l { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+
+.bar-c { color: rgba(157, 176, 190, .78); white-space: nowrap; }
+
+.bar-r { color: rgba(157, 176, 190, .8); letter-spacing: .14em; font-variant-numeric: tabular-nums; }
+
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--cy);
+  box-shadow: 0 0 10px rgba(63, 224, 197, .85);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+
+/* ---------- 拼装网格 ---------- */
+
+.deck {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: minmax(150px, .95fr) minmax(190px, 1.05fr) minmax(150px, .95fr);
+  gap: 12px;
+  flex: 1;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: linear-gradient(165deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .008) 60%, rgba(255, 255, 255, .02));
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+
+/* 顶部扫光线 */
+.tile::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: 0; height: 2px;
+  background: linear-gradient(90deg, var(--cy), transparent);
+  transition: width .45s ease;
+}
+
+a.tile:hover,
+a.tile:focus-visible {
+  border-color: rgba(63, 224, 197, .36);
+  transform: translateY(-3px);
+  box-shadow: 0 22px 46px -26px rgba(0, 0, 0, .95), 0 0 34px -16px rgba(63, 224, 197, .5);
+  outline: none;
+}
+
+a.tile:hover::after,
+a.tile:focus-visible::after { width: 100%; }
+
+/* ---------- 标题块 ---------- */
+
+.t-head {
+  grid-column: span 2;
+  justify-content: center;
+  padding: 0 4px 0 2px;
+  border-color: transparent;
+  background: none;
+}
+
+/* 上半行＝名字 ＋ 铭牌；副标题和那行小字在下面通栏，不跟铭牌抢宽度 */
+.head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.head-main { min-width: 0; }
+
+/* 标题右边的琥珀大 8（C 版那块铭牌缩小后挪过来）：只描边不填色，
+   四个角加括号 —— 当「舱段编号」用，不再写文字，免得跟左边 eyebrow 的 NO.8 重复。 */
+.head-eight {
+  position: relative;
+  flex: 0 0 auto;
+  width: 104px;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(240, 180, 95, .2);
+  border-radius: 8px;
+  background: radial-gradient(circle at 50% 50%, rgba(240, 180, 95, .12), transparent 66%);
+}
+
+.head-eight .n {
+  font-family: var(--mono);
+  font-size: 68px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -.05em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(240, 180, 95, .66);
+}
+
+/* 四个角括号：8 条 linear-gradient 拼出来，省得叠四个伪元素 */
+.head-eight::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  pointer-events: none;
+  opacity: .55;
+  background:
+    linear-gradient(var(--am), var(--am)) left  top    / 11px 1px no-repeat,
+    linear-gradient(var(--am), var(--am)) left  top    / 1px 11px no-repeat,
+    linear-gradient(var(--am), var(--am)) right top    / 11px 1px no-repeat,
+    linear-gradient(var(--am), var(--am)) right top    / 1px 11px no-repeat,
+    linear-gradient(var(--am), var(--am)) left  bottom / 11px 1px no-repeat,
+    linear-gradient(var(--am), var(--am)) left  bottom / 1px 11px no-repeat,
+    linear-gradient(var(--am), var(--am)) right bottom / 11px 1px no-repeat,
+    linear-gradient(var(--am), var(--am)) right bottom / 1px 11px no-repeat;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .3em;
+  color: var(--cy);
+}
+
+.t-head h1 {
+  margin: 0;
+  font-size: 58px;
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  background: linear-gradient(100deg, #fff 24%, #d4f7ef 58%, #8fbcff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 标题里那个 8 单独发青 */
+.d8 {
+  color: var(--cy);
+  -webkit-text-fill-color: var(--cy);
+}
+
+.sub { margin: 12px 0 0; font-size: 14px; color: var(--ink2); }
+
+.dim { margin: 5px 0 0; font-size: 12.5px; color: var(--muted); }
+
+/* ---------- 轨道图 ---------- */
+
+.t-orbit {
+  grid-column: span 2;
+  padding: 8px 14px 24px;
+  display: grid;
+  place-items: center;
+  border-color: rgba(63, 224, 197, .18);
+  background: radial-gradient(circle at 50% 44%, rgba(63, 224, 197, .07), transparent 66%);
+}
+
+.t-orbit svg { width: 100%; height: 100%; display: block; }
+
+.spin  { transform-origin: 260px 95px; animation: spin 90s linear infinite; }
+.spin2 { transform-origin: 260px 95px; animation: spin 150s linear infinite reverse; }
+
+.orbit-cap {
+  position: absolute;
+  left: 0; right: 0; bottom: 9px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .2em;
+  color: rgba(130, 170, 190, .55);
+}
+
+.t-chron,
+.t-blog { grid-column: span 2; }
+
+/* ---------- 卡片内容 ---------- */
+
+.tile-top { display: flex; align-items: center; gap: 8px; }
+
+.no {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--muted);
+}
+
+.no::before { content: "["; opacity: .5; }
+.no::after  { content: "]"; opacity: .5; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border: 1px solid;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .14em;
+}
+
+.chip i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+
+.chip.live { color: var(--cy); border-color: rgba(63, 224, 197, .3); background: rgba(63, 224, 197, .07); }
+.chip.live i { box-shadow: 0 0 8px rgba(63, 224, 197, .9); animation: pulse 2s ease-in-out infinite; }
+
+.chip.soon { color: #7f95a6; border-color: rgba(140, 170, 190, .2); background: rgba(255, 255, 255, .02); }
+
+.chip.new { color: var(--am); border-color: rgba(240, 180, 95, .34); background: rgba(240, 180, 95, .08); }
+
+.t-name {
+  margin: 9px 0 0;
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: .01em;
+  color: var(--ink);
+}
+
+.t-name.lg { font-size: 24px; margin-top: 8px; }
+
+.t-desc {
+  margin: 7px 0 0;
+  font-size: 12.5px;
+  line-height: 1.72;
+  color: #7c8fa0;
+  text-wrap: pretty;
+}
+
+.hint {
+  margin: 10px 0 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: #4a5c69;
+}
+
+.t-meta {
+  margin-top: auto;
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  color: var(--muted);
+}
+
+.t-meta .num {
+  color: var(--cy);
+  font-size: 15px;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 还没做的 */
+.soon {
+  cursor: default;
+  border-color: rgba(125, 165, 190, .09);
+  background: linear-gradient(165deg, rgba(255, 255, 255, .02), rgba(255, 255, 255, .004));
+}
+
+.soon .t-name { color: #bfcdd8; }
+.soon .t-desc { color: #64788a; }
+.soon .no { color: #4f616e; }
+
+/* ---------- 编年史的时间轴 ---------- */
+
+.rail {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: auto;
+  padding-top: 26px;
+}
+
+.rail::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 5px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(63, 224, 197, .42), rgba(110, 168, 255, .18) 72%, transparent);
+}
+
+.node {
+  position: relative;
+  padding-top: 22px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: #6b7f8e;
+}
+
+.node::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 2px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--cy);
+  box-shadow: 0 0 10px rgba(63, 224, 197, .6);
+}
+
+.node:last-child::before {
+  background: transparent;
+  border: 1px solid rgba(63, 224, 197, .45);
+  box-shadow: none;
+}
+
+.node b {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  color: #c3d2dc;
+}
+
+/* ---------- 页脚 ---------- */
+
+.foot {
+  margin-top: auto;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 30px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: #4f6271;
+}
+
+.foot-i b {
+  margin-right: 9px;
+  font-weight: 500;
+  letter-spacing: .2em;
+  color: var(--cy);
+  opacity: .8;
+}
+
+/* ---------- 动效 ---------- */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .3; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- 窄屏 ---------- */
+
+@media (max-width: 900px) {
+  .wrap { padding: 20px 16px 26px; }
+
+  .deck {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: none;
+    grid-auto-rows: auto;
+  }
+
+  .t-head { grid-column: span 2; padding: 6px 2px 10px; }
+  .t-head h1 { font-size: 42px; }
+  .head-eight { width: 104px; }
+  .t-orbit { aspect-ratio: 2 / 1; grid-column: span 2; }
+  .t-chron, .t-blog { grid-column: span 2; }
+  .foot { font-size: 9px; letter-spacing: .08em; gap: 8px; }
+}
+
+@media (max-width: 560px) {
+  .deck { grid-template-columns: 1fr; }
+  /* ⚠️ 四张宽卡都得清掉 span 2 —— 单列网格里留一个 span 2，
+     浏览器会凭空造出第二条隐式列（实测 390 下变成 54px 292px，标题挤成一列字）。 */
+  .t-head, .t-orbit, .t-chron, .t-blog { grid-column: span 1; }
+  .t-head { gap: 12px; }
+  .head-eight { width: 84px; }
+  .head-eight .n { font-size: 56px; }
+  .t-orbit { aspect-ratio: 3 / 2; }
+  .t-head h1 { font-size: 36px; }
+  .bar-c { display: none; }
+  .tile { min-height: 132px; }
+  .t-chron { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin, .spin2, .dot, .chip.live i { animation: none; }
+  .tile { transition: none; }
+}
