@@ -309,6 +309,16 @@ a.tile:focus-visible::after { width: 100%; }
   color: #4a5c69;
 }
 
+/* 板块名（如「学习小程序」）：挂在卡片名上方，当作这一格的栏目层级 */
+.hint.kicker {
+  margin: 11px 0 0;
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  color: rgba(63, 224, 197, .62);
+}
+
+.kicker + .t-name { margin-top: 4px; }
+
 .t-meta {
   margin-top: auto;
   padding-top: 12px;
