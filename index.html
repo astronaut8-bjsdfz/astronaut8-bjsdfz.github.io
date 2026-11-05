@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#080b10">
 <title>科创8班</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23080b10'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%233fe0c5' stroke-opacity='.45'/%3E%3Ctext x='16' y='21' font-size='12' text-anchor='middle' fill='%233fe0c5' font-family='sans-serif'%3E8%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="./style.css?v=20261103b">
+<link rel="stylesheet" href="./style.css?v=20261103c">
 </head>
 <body>
 
@@ -75,7 +75,7 @@
         <text x="260" y="101" text-anchor="middle" font-family="ui-monospace,Consolas,monospace"
               font-size="15" fill="#3fe0c5">8</text>
       </svg>
-      <span class="orbit-cap">06 PORTS · 03 LIVE</span>
+      <span class="orbit-cap">06 PORTS · 04 LIVE</span>
     </div>
 
     <!-- 01 编年史 -->
@@ -126,14 +126,23 @@
       <div class="t-meta"><span>PLANNED</span></div>
     </div>
 
-    <!-- 06 学习小程序：板块名在提示行，卡片本身就是其中一个程序 -->
-    <a class="tile" href="../lunyu/">
+    <!-- 06 学习小程序：一块列表，里面挂各个小程序。
+         以后加第三个就是加一个 a.app，卡片自己长高，不用动栅格。 -->
+    <div class="tile t-apps">
       <div class="tile-top"><span class="no">06</span><span class="chip live"><i></i>在线</span></div>
-      <p class="hint kicker">学习小程序</p>
-      <h2 class="t-name">论语日课</h2>
-      <p class="t-desc">解词、翻译、对比分析；按天练，也能按篇或按句自选抽题。</p>
-      <div class="t-meta"><span>五篇 120 章</span><span class="num">272 题</span></div>
-    </a>
+      <h2 class="t-name">学习小程序</h2>
+      <div class="apps">
+        <a class="app" href="../lunyu/">
+          <span class="an">论语日课</span>
+          <span class="ad">272 题</span>
+        </a>
+        <a class="app" href="../words/">
+          <span class="an">单词雪球</span>
+          <span class="ad">242 词</span>
+        </a>
+      </div>
+      <div class="t-meta"><span>APP ×2</span><span>LIVE</span></div>
+    </div>
 
   </section>
 
@@ -145,6 +154,6 @@
 
 </main>
 
-<script src="./app.js?v=20261103b"></script>
+<script src="./app.js?v=20261103c"></script>
 </body>
 </html>
