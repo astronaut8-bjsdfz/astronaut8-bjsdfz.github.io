@@ -281,6 +281,12 @@ a.tile:focus-visible::after { width: 100%; }
 
 .chip.soon { color: #7f95a6; border-color: rgba(140, 170, 190, .2); background: rgba(255, 255, 255, .02); }
 
+/* 「完善中」：第三种状态，专门给 06 学习小程序用。
+   它不是「在线」（三个小程序都能用，但专栏还在往里加东西），
+   也不是「规划中」（东西已经在了）。用琥珀色；点**不呼吸** ——
+   呼吸是「正在运行」的语言，用在这里会读成「已上线」。 */
+.chip.wip { color: var(--am); border-color: rgba(240, 180, 95, .3); background: rgba(240, 180, 95, .07); }
+
 .chip.new { color: var(--am); border-color: rgba(240, 180, 95, .34); background: rgba(240, 180, 95, .08); }
 
 .t-name {
